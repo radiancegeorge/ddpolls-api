@@ -11,6 +11,14 @@ const projects = (sequelize, dataTypes) => {
     contract: {
       allowNull: false,
       type: dataTypes.STRING,
+      unique: "contract",
+    },
+    contractType: {
+      type: dataTypes.STRING,
+    },
+    chainId: {
+      allowNull: false,
+      type: dataTypes.STRING,
     },
     discord: {
       type: dataTypes.STRING,
@@ -45,6 +53,7 @@ const projects = (sequelize, dataTypes) => {
     avatar: {
       allowNull: false,
       type: dataTypes.STRING,
+      defaultValue: "avatar.png",
       validate: {
         isUrl: true,
       },
