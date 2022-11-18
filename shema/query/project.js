@@ -11,15 +11,12 @@ const { Op } = require("sequelize");
 const projects = {
   type: new GraphQLList(projectType),
   args: {
-    input: { type: GraphQLString },
-    limit: { type: GraphQLInt },
-    page: { type: GraphQLInt },
+    input: { type: GraphQLString, defaultValue: "" },
+    limit: { type: GraphQLInt, defaultValue: 10 },
+    page: { type: GraphQLInt, defaultValue: 1 },
   },
   resolve: (parent, args) => {
-    const limit = args.limit || 10;
-    const page = args.page || 1;
-    const offset = (page - 1) * limit;
-
+    const offset = (args.page - 1) * args.limit;
     return db.projects.findAll({
       where: {
         [Op.or]: [
@@ -40,7 +37,7 @@ const projects = {
           },
         ],
       },
-      limit,
+      limit: args.limit,
       offset,
     });
   },

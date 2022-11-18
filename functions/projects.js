@@ -1,5 +1,7 @@
 const Moralis = require("moralis").default;
 const { EvmChain } = require("@moralisweb3/evm-utils");
+const Web3 = require("web3");
+const owner = require("../abi/owner");
 Moralis.start({
   apiKey: process.env.moralis_key,
 });
@@ -42,8 +44,36 @@ class Projects {
       };
     }
   };
+
+  editProjectData = async (message = {}) => {
+    const { contract, signature, chainId } = message;
+
+    delete message.signature;
+    delete message.chainId;
+
+    const data = JSON.stringify(message);
+
+    // get signer address
+    const web3 = new Web3();
+    const address = web3.eth.accounts.recover(data, signature);
+
+    //validate with owner of contract
+    const owner = (
+      await Moralis.EvmApi.utils.runContractFunction({
+        address: contract,
+        abi: owner,
+        functionName: "owner",
+        chain: chainId,
+      })
+    ).toJSON();
+
+    if (address.toLowerCase() !== owner.toLowerCase())
+      throw {
+        message: "You cannot edit any content of this Project",
+      };
+
+    //proceed with updating project
+  };
 }
 
-// const test = new Projects("0xd42debE4eDc92Bd5a3FBb4243e1ecCf6d63A4A5d");
-// test.getContractDetails("0x1", "token").then(console.log.bind(this));
 module.exports = Projects;
